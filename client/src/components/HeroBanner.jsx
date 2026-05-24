@@ -21,7 +21,7 @@ export default function HeroBanner({ item, onWatch, loading }) {
   return (
     <section className="hero">
       <div className="hero__bg">
-        <img className="hero__bg-img" src={image} alt="" />
+        <img className="hero__bg-img" src={image} alt="" fetchpriority="high" />
         <div className="hero__bg-fallback" style={{ backgroundImage: `url(${image})` }} />
       </div>
       <div className="hero__gradient" />

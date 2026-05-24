@@ -1,6 +1,6 @@
 import { matchTitle, parseEpisode, groupByShow, pickBiggestSeason, hasFullSeason, getCategoryIds } from './utils';
 
-const API_BASE = '/api/wp/v2/posts';
+const API_BASE = (import.meta.env.VITE_API_PROXY_TARGET || '') + '/api/wp/v2/posts';
 const REQUEST_CACHE = new Map();
 const CACHE_TTL = 30 * 60 * 1000; // 30 minutes
 
@@ -95,7 +95,7 @@ export async function searchPosts(query) {
 }
 
 export async function fetchImdbTop(type) {
-  const res = await fetch(`/api/imdb-top/${type}`);
+  const res = await fetch((import.meta.env.VITE_API_PROXY_TARGET || '') + `/api/imdb-top/${type}`);
   if (!res.ok) throw new Error(`IMDB API error ${res.status}`);
   return res.json();
 }

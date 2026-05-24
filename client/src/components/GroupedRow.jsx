@@ -1,4 +1,4 @@
-import { useRef, useCallback, useMemo } from 'react'
+import { useRef, useCallback, useMemo, useState, useEffect } from 'react'
 import { useContent } from '../hooks/useContent'
 import { groupByShow, pickBiggestSeason, hasFullSeason, scoreGroup, matchTitle } from '../services/utils'
 import ShowCard from './ShowCard'
@@ -27,6 +27,17 @@ export default function GroupedRow({ title, filter, onWatch, page = 1, searchTer
     return result
   }, [fetchedItems, externalItems, searchTerm, limit, filter])
 
+  const [canScroll, setCanScroll] = useState(false)
+  useEffect(() => {
+    const el = containerRef.current
+    if (!el) { setCanScroll(false); return }
+    const check = () => setCanScroll(el.scrollWidth > el.clientWidth + 1)
+    check()
+    const ro = new ResizeObserver(check)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [groups])
+
   const scroll = useCallback((dir) => {
     if (!containerRef.current) return
     const amount = containerRef.current.clientWidth * 0.75
@@ -36,7 +47,7 @@ export default function GroupedRow({ title, filter, onWatch, page = 1, searchTer
     })
   }, [])
 
-  const showArrows = !grid && groups.length > 4
+  const showArrows = !grid && canScroll
 
   if (!loading && groups.length === 0) return null
 

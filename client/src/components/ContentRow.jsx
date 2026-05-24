@@ -27,7 +27,19 @@ export default function ContentRow({ title, filter, onWatch, searchTerm = '', ca
   }, [items])
 
   const displayed = limit ? allItems.slice(0, limit) : allItems
-  const showArrows = displayed.length > 4
+
+  const [canScroll, setCanScroll] = useState(false)
+  useEffect(() => {
+    const el = containerRef.current
+    if (!el) { setCanScroll(false); return }
+    const check = () => setCanScroll(el.scrollWidth > el.clientWidth + 1)
+    check()
+    const ro = new ResizeObserver(check)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [allItems])
+
+  const showArrows = canScroll
 
   const handleLoadMore = useCallback(() => {
     if (!loading && hasMore) {

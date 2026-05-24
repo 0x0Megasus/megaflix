@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
+
 import { fetchBestContent, fetchContent } from '../services/api'
 import { getCleanTitle, detectType } from '../services/utils'
 import ContentCard from './ContentCard'
@@ -68,13 +69,24 @@ export default function TopRatedRow({ title, type, filter, onWatch, items: exter
   const displayLoading = loading && !externalItems
   const isShowType = (type || filter) === 'tv' || (type || filter) === 'anime'
 
+  const [canScroll, setCanScroll] = useState(false)
+  useEffect(() => {
+    const el = containerRef.current
+    if (!el) { setCanScroll(false); return }
+    const check = () => setCanScroll(el.scrollWidth > el.clientWidth + 1)
+    check()
+    const ro = new ResizeObserver(check)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [displayItems])
+
   const scroll = useCallback((dir) => {
     if (!containerRef.current) return
     const amount = containerRef.current.clientWidth * 0.75
     containerRef.current.scrollBy({ left: dir === 'left' ? -amount : amount, behavior: 'smooth' })
   }, [])
 
-  const showArrows = displayItems.length > 4
+  const showArrows = canScroll
 
   return (
     <section className="row">

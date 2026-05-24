@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import SEO from '../components/SEO'
 import HeroBanner from '../components/HeroBanner'
 import ContentCard from '../components/ContentCard'
 import ShowCard from '../components/ShowCard'
@@ -38,6 +39,7 @@ export default function CategoryPage({ filter, onWatch }) {
   if (loading) {
     return (
       <main className="category-page">
+        <SEO title={catLabel} description={`Browse and stream free ${catLabel.toLowerCase()} online in HD.`} path={`/${filter}`} />
         <HeroBanner loading={true} onWatch={onWatch} />
         <LoadingSkeleton title={`Top ${catLabel}`} count={10} grid={true} />
         <LoadingSkeleton title={`More ${catLabel}`} count={10} grid={true} />
@@ -64,6 +66,7 @@ export default function CategoryPage({ filter, onWatch }) {
 
   return (
     <main className="category-page">
+      <SEO title={catLabel} description={`Browse and stream free ${catLabel.toLowerCase()} online in HD.`} path={`/${filter}`} />
       {catHero && <HeroBanner item={catHero} onWatch={onWatch} />}
       
       <section className="category-page__content">

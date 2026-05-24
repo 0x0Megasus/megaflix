@@ -1,6 +1,9 @@
+import SEO from '../components/SEO'
+
 export default function DMCA() {
   return (
     <section className="legal-page">
+      <SEO title="DMCA Takedown" description="DMCA takedown request requirements and copyright infringement reporting for MegaFlix." path="/dmca" />
       <div className="legal-page__inner">
         <h1 className="legal-page__title">DMCA Takedown Request Requirements</h1>
 

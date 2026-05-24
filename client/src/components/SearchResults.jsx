@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
+import SEO from '../components/SEO'
 import { detectType, groupByShow, pickBiggestSeason, hasFullSeason, getCleanTitle, parseEpisode } from '../services/utils'
 import { fetchPosts, fetchShowEpisodes, searchPosts } from '../services/api'
 import ShowCard from './ShowCard'
@@ -108,6 +109,7 @@ export default function SearchResults({ onWatch }) {
 
   return (
     <section className="search-results">
+      <SEO title={query ? `Search: ${query}` : 'Search'} description={`Search for movies, TV shows, and anime on MegaFlix.`} path="/search" />
       <div className="search-results__header">
         <div className="search-results__header-left">
           <div className="search-results__type-selector">

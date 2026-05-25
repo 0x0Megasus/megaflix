@@ -12,7 +12,7 @@ export default function ContentCard({ item, onWatch }) {
     <article className="card" onClick={() => onWatch(item)}>
       <div className="card__img-wrap">
         {image ? (
-          <img className="card__img" src={image} alt="" loading="lazy" />
+          <img className="card__img" src={image} alt={title} loading="lazy" />
         ) : (
           <div className="card__placeholder" />
         )}

@@ -23,9 +23,10 @@ export default function HomePage({ onWatch, heroItem, heroLoading }) {
       <SEO description="Browse and stream free movies, TV shows, and anime in HD." />
       <HeroBanner item={heroItem} onWatch={onWatch} loading={heroLoading} />
       <section className="home-page__rows">
+        <p className="home-page__intro">Watch free movies, top TV shows, and the latest anime online in HD streaming at MegaFlix. Enjoy action, crime, and drama without signing up. Your destination for top-rated entertainment available 24/7.</p>
         <TopRatedRow title="🎬 Top Movies" filter="movies" onWatch={onWatch} limit={10} />
-        <TopRatedRow title="📺 Top TV Shows" filter="tv" onWatch={onWatch} limit={10} />
-        <TopRatedRow title="✨ Top Anime" filter="anime" onWatch={onWatch} limit={10} />
+        <TopRatedRow title="📺 TV Shows" filter="tv" onWatch={onWatch} limit={10} />
+        <TopRatedRow title="✨ Anime" filter="anime" onWatch={onWatch} limit={10} />
       </section>
     </main>
   )

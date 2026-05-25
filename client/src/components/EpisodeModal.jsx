@@ -111,7 +111,7 @@ export default function EpisodeModal({ group, loading, onClose, onWatch }) {
                 <span className="episode-card__num">EP {ep.episode || i + 1}</span>
                 <div className="episode-card__thumb">
                   {getFeaturedImage(ep) ? (
-                    <img src={getFeaturedImage(ep)} alt="" loading="lazy" />
+                    <img src={getFeaturedImage(ep)} alt={ep.title?.rendered || `Episode ${ep.episode || i + 1}`} loading="lazy" />
                   ) : (
                     <div className="episode-card__thumb-placeholder" />
                   )}

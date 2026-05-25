@@ -46,6 +46,17 @@
   .legal-page__list { padding-left: 20px; }
 }
 
+@media (max-height: 800px) {
+  .hero__title { font-size: 1.8rem; }
+  .hero__content { bottom: 100px; }
+}
+
+@media (max-height: 500px) {
+  .hero__title { font-size: 1.4rem; }
+  .hero__content { bottom: 80px; }
+}
+
+
 @media (max-width: 480px) {
   .navbar__links { display: none; }
   .navbar__brand { font-size: 1.3rem; }
@@ -54,7 +65,7 @@
   .hero__title { font-size: 1.4rem; }
   .hero__btn { padding: 10px 22px; font-size: .95rem; }
   .row__title { font-size: 1.15rem; }
-  .home-page__intro { padding: 0 16px; font-size: .9rem; }
+  .home-page__intro { padding: 0 16px; font-size: .85rem; }
   .card { width: 180px; }
   .skeleton-card { flex: 0 0 180px; }
   .row { padding: 0 16px; }

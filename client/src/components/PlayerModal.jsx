@@ -8,12 +8,13 @@ export default function PlayerModal({ item, onClose }) {
     const content = item.content?.rendered || ''
     const iframeMatch = content.match(/<iframe.*?src=["'](.*?)["']/i)
     if (iframeMatch && iframeMatch[1]) {
-      return iframeMatch[1]
+      return iframeMatch[1].replace(/^http:\/\//i, 'https://')
     }
 
     // 2. Fallback to permalink logic
     try {
       const u = new URL(item.link)
+      u.protocol = 'https:'
       u.searchParams.set('embedScreen', 'true')
       return u.toString()
     } catch {
@@ -46,8 +47,11 @@ export default function PlayerModal({ item, onClose }) {
           <iframe
             src={playerUrl}
             title={title}
-            allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
+            allow="autoplay *; encrypted-media *; fullscreen *; picture-in-picture *"
             allowFullScreen
+            playsinline
+            webkitallowfullscreen
+            mozallowfullscreen
           />
         </div>
       </div>

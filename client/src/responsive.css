@@ -21,7 +21,6 @@
   .hero__title { font-size: 1.8rem; }
   .hero__desc { font-size: .9rem; }
   .row { padding: 0 20px; }
-  .home-page__intro { padding: 0 20px; }
   .card { width: 220px; }
   .skeleton-card { flex: 0 0 220px; }
   .row { padding: 0 20px; }
@@ -65,11 +64,13 @@
   .hero__title { font-size: 1.4rem; }
   .hero__btn { padding: 10px 22px; font-size: .95rem; }
   .row__title { font-size: 1.15rem; }
-  .home-page__intro { padding: 0 16px; font-size: .85rem; }
   .card { width: 180px; }
   .skeleton-card { flex: 0 0 180px; }
   .row { padding: 0 16px; }
   .search-results__grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+  .search-results__type-btn { padding: 4px 10px; font-size: .75rem; }
+  .search-card__btn { padding: 5px; font-size: .75rem; }
+  .search-results__close { margin-left: 2px; }
   .footer__actions { gap: 16px; }
 
   .modal { padding: 0; }

@@ -76,15 +76,6 @@
 
 .navbar__search input::placeholder { color: var(--text-muted); }
 
-.navbar__search-close {
-  background: none;
-  border: none;
-  color: var(--text);
-  cursor: pointer;
-  padding: 4px 10px;
-  font-size: 1rem;
-}
-
 .navbar__search-btn {
   background: none;
   border: none;
@@ -144,15 +135,15 @@
 
 .hero__type {
   display: inline-block;
-  padding: 4px 14px;
-  background: var(--accent);
+  padding: 6px 18px;
+  background: #b20710;
   color: #fff;
-  font-size: .8rem;
-  font-weight: 700;
+  font-size: .82rem;
+  font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: .1em;
-  margin-bottom: 18px;
-  border-radius: 2px;
+  letter-spacing: .12em;
+  margin-bottom: 24px;
+  border-radius: 4px;
 }
 
 .hero__title {
@@ -262,7 +253,6 @@
 }
 
 .row__empty { color: var(--text-muted); padding: 20px 0; font-size: .95rem; }
-.home-page__intro { color: var(--text-secondary); font-size: 1rem; line-height: 1.8; margin: 0 auto 32px; width: 80%; padding: 0 60px; }
 
 /* ===== Card ===== */
 .card {

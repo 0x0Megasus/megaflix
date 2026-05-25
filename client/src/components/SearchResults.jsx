@@ -7,6 +7,7 @@ import ShowCard from './ShowCard'
 import ContentCard from './ContentCard'
 
 const SEARCH_TYPES = [
+  { key: '', label: 'All', catFilter: '' },
   { key: 'movies', label: 'Movies', catFilter: 'movies' },
   { key: 'tv', label: 'TV Shows', catFilter: 'tv' },
   { key: 'anime', label: 'Anime', catFilter: 'anime' },
@@ -31,8 +32,11 @@ export default function SearchResults({ onWatch }) {
     if (newQuery !== undefined) params.set('q', newQuery)
     else if (query) params.set('q', query)
     
-    if (newType) params.set('type', newType)
-    else if (typeParam) params.set('type', typeParam)
+    if (newType !== undefined) {
+      if (newType) params.set('type', newType)
+    } else if (typeParam) {
+      params.set('type', typeParam)
+    }
     
     navigate(`/search?${params.toString()}`, { replace: true })
   }
@@ -141,7 +145,7 @@ export default function SearchResults({ onWatch }) {
           <input
             className="search-results__input"
             type="text"
-            placeholder={`Search ${activeType.label}...`}
+            placeholder={activeType.key === '' ? 'Search movies, TV shows & anime...' : `Search ${activeType.label}...`}
             value={query}
             onChange={e => setSearch(activeType.key, e.target.value)}
             autoFocus={!hasQuery}
@@ -160,9 +164,15 @@ export default function SearchResults({ onWatch }) {
           ))}
         </div>
       ) : hasQuery && totalCount === 0 ? (
-        <p className="search-results__none">
-          No results found for &ldquo;{query}&rdquo; in {activeType.label}. Try a different search term.
-        </p>
+        activeType.key === '' ? (
+          <p className="search-results__none">
+            No results found for &ldquo;{query}&rdquo;. Try a different search term.
+          </p>
+        ) : (
+          <p className="search-results__none">
+            No results found for &ldquo;{query}&rdquo; in {activeType.label}. Try a different search term.
+          </p>
+        )
       ) : hasQuery ? (
         <>
           {enriching && (

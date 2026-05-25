@@ -4,7 +4,6 @@ import { fetchBestContent, fetchContent } from '../services/api'
 import { getCleanTitle, detectType } from '../services/utils'
 import ContentCard from './ContentCard'
 import ShowCard from './ShowCard'
-import LoadingSkeleton from './LoadingSkeleton'
 
 export default function TopRatedRow({ title, type, filter, onWatch, items: externalItems, limit }) {
   const [items, setItems] = useState([])
@@ -108,7 +107,17 @@ export default function TopRatedRow({ title, type, filter, onWatch, items: exter
         )}
       </div>
       {displayLoading ? (
-        <LoadingSkeleton />
+        <div className="row__container">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="skeleton-card">
+              <div className="skeleton-card__img" />
+              <div className="skeleton-card__body">
+                <div className="skeleton-card__line" />
+                <div className="skeleton-card__line skeleton-card__line--short" />
+              </div>
+            </div>
+          ))}
+        </div>
       ) : displayItems.length === 0 ? (
         <p className="row__empty">No content available</p>
       ) : (

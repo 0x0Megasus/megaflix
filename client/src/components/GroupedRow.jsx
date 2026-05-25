@@ -2,7 +2,6 @@ import { useRef, useCallback, useMemo, useState, useEffect } from 'react'
 import { useContent } from '../hooks/useContent'
 import { groupByShow, pickBiggestSeason, hasFullSeason, scoreGroup, matchTitle } from '../services/utils'
 import ShowCard from './ShowCard'
-import LoadingSkeleton from './LoadingSkeleton'
 
 export default function GroupedRow({ title, filter, onWatch, page = 1, searchTerm = '', categories = '', externalItems, limit, grid }) {
   const { items: fetchedItems, loading: fetchLoading } = useContent(filter, searchTerm, page, categories)
@@ -72,7 +71,17 @@ export default function GroupedRow({ title, filter, onWatch, page = 1, searchTer
       </div>
 
       {loading ? (
-        <LoadingSkeleton />
+        <div className="row__container">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="skeleton-card">
+              <div className="skeleton-card__img" />
+              <div className="skeleton-card__body">
+                <div className="skeleton-card__line" />
+                <div className="skeleton-card__line skeleton-card__line--short" />
+              </div>
+            </div>
+          ))}
+        </div>
       ) : (
         <div className={grid ? 'row__grid' : 'row__container'} ref={grid ? null : containerRef}>
           {groups.map((group, i) => (

@@ -1,7 +1,6 @@
 import { useRef, useCallback, useState, useEffect } from 'react'
 import { useContent } from '../hooks/useContent'
 import ContentCard from './ContentCard'
-import LoadingSkeleton from './LoadingSkeleton'
 
 export default function ContentRow({ title, filter, onWatch, searchTerm = '', categories = '', limit }) {
   const [page, setPage] = useState(1)
@@ -91,7 +90,17 @@ export default function ContentRow({ title, filter, onWatch, searchTerm = '', ca
       </div>
 
       {loading && allItems.length === 0 ? (
-        <LoadingSkeleton />
+        <div className="row__container">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="skeleton-card">
+              <div className="skeleton-card__img" />
+              <div className="skeleton-card__body">
+                <div className="skeleton-card__line" />
+                <div className="skeleton-card__line skeleton-card__line--short" />
+              </div>
+            </div>
+          ))}
+        </div>
       ) : displayed.length === 0 ? (
         <p className="row__empty">No content available</p>
       ) : (

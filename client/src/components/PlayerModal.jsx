@@ -61,6 +61,7 @@ export default function PlayerModal({ item, onClose }) {
             mozallowfullscreen
           />
         </div>
+        <p className="modal__hint">Use full screen mode to hide external ADS</p>
       </div>
     </div>
   )

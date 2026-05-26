@@ -364,7 +364,16 @@
   to { transform: rotate(360deg); }
 }
 
-/* ===== Contact Panel ===== */
+.modal__hint {
+  text-align: center;
+  padding: 10px 16px;
+  font-size: .85rem;
+  font-weight: 700;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+  color: #f5c518;
+  background: #000;
+}
 .contact-panel { max-width: 500px !important; }
 
 .contact-panel__body { padding: 28px 24px; }

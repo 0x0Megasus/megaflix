@@ -51,6 +51,8 @@ export default function SearchResults({ onWatch }) {
   const catFilter = activeType?.catFilter || ''
   const { debounced: debouncedQuery, flush: flushDebounce } = useDebounce(query, 1500)
 
+  useEffect(() => { setResults(null) }, [query])
+
   const setSearch = (newType, newQuery) => {
     const params = new URLSearchParams()
     if (newQuery !== undefined) params.set('q', newQuery)

@@ -158,7 +158,7 @@ export default function SearchResults({ onWatch }) {
         <div className="search-results__grid">
           {Array.from({ length: 8 }).map((_, i) => <div key={i} className="search-card search-card--skeleton" />)}
         </div>
-      ) : query.trim() && totalCount === 0 ? (
+      ) : results && query.trim() && totalCount === 0 ? (
         <p className="search-results__none">
           No results found for &ldquo;{query}&rdquo;{activeType.key ? ` in ${activeType.label}` : ''}. Try a different search term.
         </p>

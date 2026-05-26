@@ -15,7 +15,7 @@
   .navbar { padding: 0 20px; height: 56px; }
   .navbar__links { gap: 10px; }
   .navbar__link { font-size: .8rem; }
-  .navbar__search input { width: 160px; }
+  .navbar__search { padding: 5px 8px; }
   .hero { height: 65vh; min-height: 420px; }
   .hero__content { left: 20px; bottom: 100px; max-width: 90%; }
   .hero__title { font-size: 1.8rem; }
@@ -26,6 +26,7 @@
   .row { padding: 0 20px; }
   .search-results__grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; padding: 0 20px 20px; }
   .search-results__header { padding: 16px 20px; font-size: 1.3rem; }
+  .search-results__type-btn { padding: 6px 12px; font-size: .8rem; }
   .search-section__title { padding: 0 20px; }
   .search-section__count { padding: 0 20px; }
   .search-results__none { padding: 30px 20px; }
@@ -56,8 +57,14 @@
 }
 
 
+@media (max-width: 600px) {
+  .navbar__search { padding: 4px 8px; }
+  .navbar__search-icon { width: 16px; height: 16px; }
+}
+
 @media (max-width: 480px) {
   .navbar__links { display: none; }
+  .navbar__search { flex: 1; max-width: 200px; }
   .navbar__brand { font-size: 1.3rem; }
   .hero { height: 55vh; min-height: 360px; }
   .hero__content { bottom: 80px; }
@@ -68,9 +75,9 @@
   .skeleton-card { flex: 0 0 180px; }
   .row { padding: 0 16px; }
   .search-results__grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
-  .search-results__type-btn { padding: 4px 10px; font-size: .75rem; }
+  .search-results__type-btn { padding: 4px 8px; font-size: .75rem; }
   .search-card__btn { padding: 5px; font-size: .75rem; }
-  .search-results__close { margin-left: 2px; }
+
   .footer__actions { gap: 16px; }
 
   .modal { padding: 0; }

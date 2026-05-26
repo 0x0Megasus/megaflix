@@ -1,5 +1,4 @@
-import { useNavigate, useLocation } from 'react-router-dom'
-import { NavLink } from 'react-router-dom'
+import { useNavigate, useLocation, NavLink } from 'react-router-dom'
 import { useScrollPosition } from '../hooks/useScrollPosition'
 
 const NAVS = [
@@ -16,7 +15,7 @@ export default function Navbar() {
 
   const isSearch = location.pathname === '/search'
 
-  const handleSearchOpen = () => {
+  const handleSearchClick = () => {
     window.scrollTo(0, 0)
     navigate('/search')
   }
@@ -42,12 +41,13 @@ export default function Navbar() {
       </div>
 
       <div className="navbar__right">
-        <button className="navbar__search-btn" onClick={handleSearchOpen} aria-label="Search">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="11" cy="11" r="8" />
-              <line x1="21" y1="21" x2="16.65" y2="16.65" />
-            </svg>
-          </button>
+        {!isSearch && <button className="navbar__search" onClick={handleSearchClick} aria-label="Search">
+          <svg className="navbar__search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+          <span className="navbar__search-text">Search...</span>
+        </button>}
       </div>
     </nav>
   )

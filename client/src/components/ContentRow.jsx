@@ -1,5 +1,6 @@
 import { useRef, useCallback, useState, useEffect } from 'react'
 import { useContent } from '../hooks/useContent'
+import { useHorizontalScroll } from '../hooks/useHorizontalScroll'
 import ContentCard from './ContentCard'
 
 export default function ContentRow({ title, filter, onWatch, searchTerm = '', categories = '', limit }) {
@@ -7,7 +8,7 @@ export default function ContentRow({ title, filter, onWatch, searchTerm = '', ca
   const [allItems, setAllItems] = useState([])
   const [hasMore, setHasMore] = useState(true)
   const { items, loading } = useContent(filter, searchTerm, page, categories)
-  const containerRef = useRef(null)
+  const { containerRef, showArrows, scroll } = useHorizontalScroll([allItems])
   const observerRef = useRef(null)
 
   useEffect(() => {
@@ -27,47 +28,19 @@ export default function ContentRow({ title, filter, onWatch, searchTerm = '', ca
 
   const displayed = limit ? allItems.slice(0, limit) : allItems
 
-  const [canScroll, setCanScroll] = useState(false)
-  useEffect(() => {
-    const el = containerRef.current
-    if (!el) { setCanScroll(false); return }
-    const check = () => setCanScroll(el.scrollWidth > el.clientWidth + 1)
-    check()
-    const ro = new ResizeObserver(check)
-    ro.observe(el)
-    return () => ro.disconnect()
-  }, [allItems])
-
-  const showArrows = canScroll
-
   const handleLoadMore = useCallback(() => {
-    if (!loading && hasMore) {
-      setPage(p => p + 1)
-    }
+    if (!loading && hasMore) setPage(p => p + 1)
   }, [loading, hasMore])
 
   useEffect(() => {
     if (!observerRef.current) return
     const observer = new IntersectionObserver(
-      entries => {
-        if (entries[0].isIntersecting && !loading && hasMore) {
-          handleLoadMore()
-        }
-      },
+      entries => { if (entries[0].isIntersecting && !loading && hasMore) handleLoadMore() },
       { threshold: 0.25 }
     )
     observer.observe(observerRef.current)
     return () => observer.disconnect()
   }, [handleLoadMore, loading, hasMore])
-
-  const scroll = useCallback((dir) => {
-    if (!containerRef.current) return
-    const amount = containerRef.current.clientWidth * 0.75
-    containerRef.current.scrollBy({
-      left: dir === 'left' ? -amount : amount,
-      behavior: 'smooth'
-    })
-  }, [])
 
   return (
     <section className="row">
@@ -76,14 +49,10 @@ export default function ContentRow({ title, filter, onWatch, searchTerm = '', ca
         {showArrows && (
           <div className="row__arrows">
             <button className="row__arrow" onClick={() => scroll('left')} aria-label="Scroll left">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <polyline points="15,18 9,12 15,6" />
-              </svg>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="15,18 9,12 15,6" /></svg>
             </button>
             <button className="row__arrow" onClick={() => scroll('right')} aria-label="Scroll right">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <polyline points="9,18 15,12 9,6" />
-              </svg>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="9,18 15,12 9,6" /></svg>
             </button>
           </div>
         )}

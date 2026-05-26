@@ -1,34 +1,60 @@
-import { matchTitle, parseEpisode, groupByShow, pickBiggestSeason, hasFullSeason, getCategoryIds } from './utils';
+import { matchTitle } from './utils';
 
 const API_BASE = (import.meta.env.VITE_API_PROXY_TARGET || '') + '/api/wp/v2/posts';
-const REQUEST_CACHE = new Map();
-const CACHE_TTL = 30 * 60 * 1000; // 30 minutes
+const API_SERVER = import.meta.env.VITE_API_PROXY_TARGET || '';
 
-function getCacheKey(endpoint, params) {
-  const key = `${endpoint}:${JSON.stringify(params)}`;
-  return key;
+// ── Client-side cache (30-min TTL) ──
+const REQUEST_CACHE = new Map();
+const CACHE_TTL = 30 * 60 * 1000;
+
+function cacheKey(...parts) {
+  return parts.join(':');
 }
 
-function getFromCache(key) {
-  const cached = REQUEST_CACHE.get(key);
-  if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
-    return cached.data;
-  }
+function fromCache(key) {
+  const entry = REQUEST_CACHE.get(key);
+  if (entry && Date.now() - entry.timestamp < CACHE_TTL) return entry.data;
   REQUEST_CACHE.delete(key);
   return null;
 }
 
-export function setCache(key, data) {
+function toCache(key, data) {
   REQUEST_CACHE.set(key, { data, timestamp: Date.now() });
+}
+
+// ── Request deduplication ──
+const IN_FLIGHT = new Map();
+
+async function dedupedFetch(url, cacheKey) {
+  const cached = fromCache(cacheKey);
+  if (cached) return cached;
+
+  if (IN_FLIGHT.has(cacheKey)) {
+    return IN_FLIGHT.get(cacheKey);
+  }
+
+  const promise = (async () => {
+    try {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`API error ${res.status}`);
+      const data = await res.json();
+      toCache(cacheKey, data);
+      return data;
+    } finally {
+      IN_FLIGHT.delete(cacheKey);
+    }
+  })();
+
+  IN_FLIGHT.set(cacheKey, promise);
+  return promise;
 }
 
 export function clearCache() {
   REQUEST_CACHE.clear();
 }
-
-// Clear cache on startup to purge any stale misclassified data
 clearCache();
 
+// ── Filters ──
 const FILTERS = {
   home: null,
   movies: '3,4',
@@ -36,9 +62,10 @@ const FILTERS = {
   anime: '5,8'
 };
 
+// ── Fetch posts from WP proxy ──
 export async function fetchPosts({ filter = 'home', search = '', page = 1, perPage = 50, categories = '' } = {}) {
-  const cacheKey = getCacheKey('fetchPosts', { filter, search, page, perPage, categories });
-  const cached = getFromCache(cacheKey);
+  const key = cacheKey('fetchPosts', filter, search, page, perPage, categories);
+  const cached = fromCache(key);
   if (cached) return cached;
 
   const url = new URL(API_BASE, window.location.origin);
@@ -50,64 +77,55 @@ export async function fetchPosts({ filter = 'home', search = '', page = 1, perPa
   if (catIds) url.searchParams.set('categories', catIds);
   if (search) url.searchParams.set('search', search);
 
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`API error ${res.status}`);
-  const data = await res.json();
-  setCache(cacheKey, data);
-  return data;
+  return dedupedFetch(url, key);
 }
 
+// ── Search posts (exact match + broad fallback) ──
 export async function searchPosts(query) {
   if (!query.trim()) return [];
-
-  const cacheKey = getCacheKey('searchPosts', { query });
-  const cached = getFromCache(cacheKey);
+  const key = cacheKey('searchPosts', query);
+  const cached = fromCache(key);
   if (cached) return cached;
 
   const seen = new Set();
   const allMatches = [];
 
-  try {
-    const exact = await fetchPosts({ search: query, perPage: 100 }).catch(() => []);
-    for (const item of Array.isArray(exact) ? exact : []) {
-      if (!seen.has(item.id) && matchTitle(item, query)) {
-        seen.add(item.id);
-        allMatches.push(item);
-      }
-    }
-  } catch {}
-
-  // Only fallback if very few results
-  if (allMatches.length < 5) {
+  const fetchAndMatch = async (opts) => {
     try {
-      const results = await fetchPosts({ perPage: 100, page: 1 }).catch(() => []);
-      for (const item of Array.isArray(results) ? results : []) {
+      const data = await fetchPosts(opts);
+      for (const item of Array.isArray(data) ? data : []) {
         if (!seen.has(item.id) && matchTitle(item, query)) {
           seen.add(item.id);
           allMatches.push(item);
         }
       }
-    } catch {}
+    } catch { /* ignore */ }
+  };
+
+  await fetchAndMatch({ search: query, perPage: 100 });
+
+  if (allMatches.length < 5) {
+    await fetchAndMatch({ perPage: 100, page: 1 });
   }
 
-  setCache(cacheKey, allMatches);
+  toCache(key, allMatches);
   return allMatches;
 }
 
-export async function fetchImdbTop(type) {
-  const res = await fetch((import.meta.env.VITE_API_PROXY_TARGET || '') + `/api/imdb-top/${type}`);
-  if (!res.ok) throw new Error(`IMDB API error ${res.status}`);
-  return res.json();
+// ── Fetch best content (server-side IMDB cross-reference) ──
+export async function fetchBestContent(type, limit = 10) {
+  const key = cacheKey('fetchBestContent', type, limit);
+  const cached = fromCache(key);
+  if (cached) return cached;
+
+  const url = `${API_SERVER}/api/best-content/${type}?limit=${limit}`;
+  return dedupedFetch(url, key);
 }
 
-function exactMatchTitle(item, query) {
-  const title = item.title?.rendered || ''
-  return title.toLowerCase().includes(query.toLowerCase().trim())
-}
-
+// ── Fetch all episodes for a show (multi-page) ──
 export async function fetchShowEpisodes(showName, categoryIds) {
-  const cacheKey = getCacheKey('fetchShowEpisodes', { showName, categoryIds });
-  const cached = getFromCache(cacheKey);
+  const key = cacheKey('fetchShowEpisodes', showName, categoryIds);
+  const cached = fromCache(key);
   if (cached) return cached;
 
   const showLower = showName.toLowerCase().trim();
@@ -137,24 +155,19 @@ export async function fetchShowEpisodes(showName, categoryIds) {
   if (totalPages > 1) {
     const remainingPages = Array.from({ length: Math.min(totalPages - 1, 7) }, (_, i) => i + 2);
     const results = await Promise.allSettled(remainingPages.map(async (page) => {
+      const pageUrl = new URL(url.toString());
+      pageUrl.searchParams.set('page', String(page));
       try {
-        const pageUrl = new URL(url.toString());
-        pageUrl.searchParams.set('page', String(page));
         const res = await fetch(pageUrl);
-        if (!res.ok) return []; // Silently ignore individual page errors
+        if (!res.ok) return [];
         return res.json();
-      } catch {
-        return []; // Silently ignore fetch failures
-      }
+      } catch { return []; }
     }));
 
     for (const res of results) {
       if (res.status === 'fulfilled' && Array.isArray(res.value)) {
         res.value.forEach(post => {
-          if (!seen.has(post.id)) {
-            allPosts.push(post);
-            seen.add(post.id);
-          }
+          if (!seen.has(post.id)) { allPosts.push(post); seen.add(post.id); }
         });
       }
     }
@@ -162,143 +175,15 @@ export async function fetchShowEpisodes(showName, categoryIds) {
 
   const matchedPosts = allPosts.filter(post => {
     const title = (post.title?.rendered || '').toLowerCase().trim();
-    const { name: parsedName } = parseEpisode(post.title?.rendered || '')
-    
-    const normParsed = (parsedName || '').toLowerCase().trim().replace(/[^a-z0-9\s]/g, '')
-    const normTarget = showLower.replace(/[^a-z0-9\s]/g, '')
-
-    return (parsedName && parsedName.toLowerCase().trim() === showLower) ||
-           (normParsed === normTarget) ||
-           (title.includes(showLower)) ||
-           (showLower.includes(normParsed && normParsed.length > 3 ? normParsed : '____NOT_MATCH____'));
+    return title.includes(showLower) ||
+           (showLower.includes(title.length > 3 ? title : '____NOT_MATCH____'));
   });
 
-  setCache(cacheKey, matchedPosts);
+  toCache(key, matchedPosts);
   return matchedPosts;
 }
 
-const MISSING_MATCHES = new Set();
-
-export async function fetchBestContent(type, limit = 10, validation = true) {
-  const list = await fetchImdbTop(type);
-  if (!Array.isArray(list)) return [];
-
-  const catFilter = type === 'movies' ? 'movies' : type === 'tv' ? 'tv' : 'anime';
-  const catIds = FILTERS[catFilter] || '';
-
-  // AGGRESSIVE BLACKLIST for Anime fetch: titles that are definitely NOT anime
-  let skipTitles = new Set();
-  if (type === 'anime') {
-    const NOT_ANIME = [
-      'breaking bad', 'the wire', 'the sopranos', 'game of thrones', 'chernobyl', 
-      'sherlock', 'better call saul', 'the office', 'friends', 'black mirror',
-      'succession', 'the mandalorian', 'the crown', 'stranger things', 'ted lasso'
-    ];
-    NOT_ANIME.forEach(t => skipTitles.add(t));
-  }
-  
-  if (type === 'tv') {
-    const animePosts = await fetchPosts({ filter: 'anime', perPage: 100 }).catch(() => []);
-    if (Array.isArray(animePosts)) {
-      for (const item of list) {
-        const t = (item["Movie Name"] || item["Show Name"] || "").toLowerCase();
-        if (!t) continue;
-        for (const post of animePosts) {
-          if (exactMatchTitle(post, t)) { skipTitles.add(t); break; }
-        }
-      }
-    }
-  }
-
-  const matched = [];
-  const seen = new Set();
-
-  // Optimized: Increase batch size to 40 for ultra-fast parallel lookups
-  for (let i = 0; i < list.length && matched.length < limit; i += 40) {
-    const batch = list.slice(i, i + 40);
-    const results = await Promise.all(batch.map(async (item) => {
-      const title = item["Movie Name"] || item["Show Name"];
-      const rating = parseFloat(item["IMDb Rating"]);
-      if (!title || isNaN(rating) || skipTitles.has(title.toLowerCase())) return null;
-
-      // Skip if we already searched and failed to find this title on our site recently
-      if (MISSING_MATCHES.has(`${catFilter}:${title.toLowerCase()}`)) return null;
-
-      const posts = await fetchPosts({ search: title, perPage: 50, categories: catIds }).catch(() => []);
-      if (!Array.isArray(posts) || posts.length === 0) {
-        MISSING_MATCHES.add(`${catFilter}:${title.toLowerCase()}`);
-        return null;
-      }
-
-      const match = posts.find(p => {
-        const { name } = parseEpisode(p.title?.rendered || '');
-        const clean = name ? name.replace(/\b\d{4}\b/g, '').replace(/\s+/g, ' ').trim().toLowerCase() : '';
-        const normalizedTitle = title.toLowerCase().trim();
-        
-        // ABSOLUTE POSITIVE CHECK: Must have the correct categories for the type
-        const pCats = getCategoryIds(p)
-        const isAnimePost = pCats.some(id => [5, 8].includes(id))
-        const isTVPost = pCats.some(id => [7, 9].includes(id))
-        
-        if (type === 'tv' && !isTVPost) return false;
-        if (type === 'anime' && !isAnimePost) return false;
-        // Special case: Breaking Bad should NOT be anime
-        if (type === 'anime' && title.toLowerCase().includes('breaking bad')) return false;
-
-        if (clean && clean === normalizedTitle) return true;
-        return matchTitle(p, title);
-      });
-      if (!match) return null;
-
-      return { post: match, rating, title };
-    }));
-
-    for (const r of results) {
-      if (!r || seen.has(r.post.id)) continue;
-      seen.add(r.post.id);
-
-      if (catIds && type !== 'movies' && validation) {
-        const episodes = await fetchShowEpisodes(r.title, catIds).catch(() => []);
-        if (episodes.length > 0) {
-          const groups = groupByShow(episodes)
-          const fullGroups = groups.filter(hasFullSeason)
-          const bestGroup = fullGroups.reduce((current, next) => {
-            if (!current) return next
-            return (next.posts.length || 0) > (current.posts.length || 0) ? next : current
-          }, fullGroups[0])
-
-          if (bestGroup) {
-            const season = pickBiggestSeason(bestGroup)
-            const representative = season.representative || bestGroup.representative || bestGroup.posts[0]
-            if (representative) {
-              matched.push({
-                ...representative,
-                imdbRating: r.rating,
-                imdbTitle: r.title,
-                seasonNum: season.seasonNum,
-                episodeCount: season.episodeCount,
-                totalEpisodeCount: season.totalEpisodeCount,
-              })
-              if (matched.length >= limit) break;
-              continue
-            }
-          }
-        }
-        continue
-      } else {
-        matched.push({ ...r.post, imdbRating: r.rating, imdbTitle: r.title });
-      }
-      if (matched.length >= limit) break;
-    }
-  }
-
-  return matched.sort((a, b) => b.imdbRating - a.imdbRating);
-}
-
-export async function fetchTopRatedContent(type, filter, search = '') {
-  return fetchBestContent(type);
-}
-
+// ── Fetch two pages of content ──
 export async function fetchContent(filter, search = '', page = 1, categories = '') {
   const [page1, page2] = await Promise.all([
     fetchPosts({ filter, search, page, categories, perPage: 50 }),
@@ -325,4 +210,6 @@ export async function fetchContent(filter, search = '', page = 1, categories = '
   return items.filter(item => matchTitle(item, search));
 }
 
-
+export async function fetchTopRatedContent(type) {
+  return fetchBestContent(type);
+}

@@ -1,18 +1,17 @@
-import { useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { stripArabic } from '../services/utils'
 
 export default function PlayerModal({ item, onClose }) {
+  const [loaded, setLoaded] = useState(false)
   const title = stripArabic(item.title?.rendered || 'Untitled')
 
   const playerUrl = (() => {
-    // 1. Try to find iframe in content
     const content = item.content?.rendered || ''
     const iframeMatch = content.match(/<iframe.*?src=["'](.*?)["']/i)
     if (iframeMatch && iframeMatch[1]) {
       return iframeMatch[1].replace(/^http:\/\//i, 'https://')
     }
 
-    // 2. Fallback to permalink logic
     try {
       const u = new URL(item.link)
       u.protocol = 'https:'
@@ -45,9 +44,16 @@ export default function PlayerModal({ item, onClose }) {
           <button className="modal__close" onClick={onClose}>✕</button>
         </div>
         <div className="modal__wrapper">
+          {!loaded && (
+            <div className="modal__loader">
+              <div className="modal__spinner" />
+              <span>Loading player...</span>
+            </div>
+          )}
           <iframe
             src={playerUrl}
             title={title}
+            onLoad={() => setLoaded(true)}
             allow="autoplay *; encrypted-media *; fullscreen *; picture-in-picture *"
             allowFullScreen
             playsinline

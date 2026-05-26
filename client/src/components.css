@@ -74,18 +74,6 @@
   font-family: var(--font);
 }
 
-.navbar__search input::placeholder { color: var(--text-muted); }
-
-.navbar__search-btn {
-  background: none;
-  border: none;
-  color: var(--text);
-  cursor: pointer;
-  padding: 6px;
-  display: flex;
-  align-items: center;
-}
-
 /* ===== Hero ===== */
 .hero {
   position: relative;
@@ -834,6 +822,7 @@
 .search-results__type-selector {
   display: flex;
   gap: 8px;
+  margin-right: 2px;
 }
 
 .search-results__type-btn {

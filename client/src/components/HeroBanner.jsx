@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react'
-import { getFeaturedImage, detectType, stripArabic, groupByShow } from '../services/utils'
+import { getFeaturedImage, getCleanTitle, detectType, groupByShow } from '../services/utils'
 import { fetchShowEpisodes } from '../services/api'
 import EpisodeModal from './EpisodeModal'
 
@@ -22,8 +22,7 @@ export default function HeroBanner({ item, onWatch, loading }) {
 
   if (!item) return null
 
-  const raw = item.title?.rendered || 'Untitled'
-  const title = item.imdbTitle || stripArabic(raw)
+  const title = item.imdbTitle || getCleanTitle(item)
   const image = getFeaturedImage(item) || FALLBACK_IMG
   const type = detectType(item)
   const isShowType = type === 'TV Show' || type === 'Anime'
@@ -40,11 +39,12 @@ export default function HeroBanner({ item, onWatch, loading }) {
 
     try {
       const catIds = type === 'Anime' ? '5,8' : '7,9'
-      const episodes = await fetchShowEpisodes(title, catIds)
+      const cleanTitle = getCleanTitle(item)
+      const episodes = await fetchShowEpisodes(cleanTitle, catIds)
       if (episodes?.length > 0) {
         const regrouped = groupByShow(episodes)
         const best = regrouped.find(g =>
-          g.displayName.toLowerCase().includes(title.toLowerCase())
+          g.displayName.toLowerCase().includes(cleanTitle.toLowerCase())
         ) || regrouped[0]
         if (best) setEpisodeGroup(best)
       }

@@ -6,7 +6,7 @@ import ShowCard from '../components/ShowCard'
 import TopRatedRow from '../components/TopRatedRow'
 import LoadingSkeleton from '../components/LoadingSkeleton'
 import { fetchBestContent, fetchContent } from '../services/api'
-import { groupByShow, pickBiggestSeason, detectType } from '../services/utils'
+import { groupByShow, pickBiggestSeason, getCategoryIds, detectType } from '../services/utils'
 
 export default function CategoryPage({ filter, onWatch }) {
   const [items, setItems] = useState(null)
@@ -56,7 +56,13 @@ export default function CategoryPage({ filter, onWatch }) {
     )
   }
 
-  const catHero = heroItem || items?.[0] || null
+  const catHero = heroItem || (Array.isArray(items) && items.find(i => {
+    const cats = getCategoryIds(i)
+    if (filter === 'anime') return cats.some(c => [5, 8].includes(c)) && !cats.some(c => [7, 9].includes(c))
+    if (filter === 'tv') return cats.some(c => [7, 9].includes(c)) && !cats.some(c => [5, 8].includes(c)) && !cats.some(c => [3, 4].includes(c))
+    if (filter === 'movies') return cats.some(c => [3, 4].includes(c)) && !cats.some(c => [7, 9].includes(c))
+    return false
+  })) || items?.[0] || null
 
   const displayItems = isShowType 
     ? groupByShow(items).map(g => {

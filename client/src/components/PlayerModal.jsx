@@ -3,6 +3,13 @@ import { stripArabic } from '../services/utils'
 
 export default function PlayerModal({ item, onClose }) {
   const [loaded, setLoaded] = useState(false)
+  const [dismissed, setDismissed] = useState(false)
+  const [hiding, setHiding] = useState(false)
+
+  const handleDismiss = () => {
+    setHiding(true)
+    setTimeout(() => setDismissed(true), 200)
+  }
   const title = stripArabic(item.title?.rendered || 'Untitled')
 
   const playerUrl = (() => {
@@ -61,7 +68,14 @@ export default function PlayerModal({ item, onClose }) {
             mozallowfullscreen
           />
         </div>
-        <p className="modal__hint">Use full screen mode to hide external ADS</p>
+        {!dismissed && (
+          <div className={`modal__hint${hiding ? ' modal__hint--dismissed' : ''}`}>
+            <span className="modal__hint-text">
+              Use <strong>full screen mode</strong> to hide external ads if you are seeing them.
+            </span>
+            <button className="modal__hint-close" onClick={handleDismiss} aria-label="Dismiss hint">✕</button>
+          </div>
+        )}
       </div>
     </div>
   )

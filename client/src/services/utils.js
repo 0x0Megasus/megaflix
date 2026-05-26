@@ -171,10 +171,67 @@ export function parseEpisode(title) {
   return { name, season, episode }
 }
 
+export function stripArabic(text) {
+  if (!text) return ''
+  let t = text
+
+  // 1. Decode HTML entities (MUST happen before any number/pattern matching)
+  const el = document.createElement('div')
+  el.innerHTML = t
+  t = el.textContent || ''
+
+  // 2. Arabic-Indic digits -> Western digits
+  const indicMap = { '٠': '0', '١': '1', '٢': '2', '٣': '3', '٤': '4', '٥': '5', '٦': '6', '٧': '7', '٨': '8', '٩': '9' }
+  t = t.replace(/[٠١٢٣٤٥٦٧٨٩]/g, d => indicMap[d])
+
+  // 3. Ordinal words -> numbers (sort by length desc for greedy matching)
+  const ORDINALS = {
+    'الأول': '1', 'الاول': '1',
+    'الثاني': '2', 'التاني': '2',
+    'الثالث': '3', 'التالت': '3',
+    'الرابع': '4',
+    'الخامس': '5',
+    'السادس': '6',
+    'السابع': '7',
+    'الثامن': '8',
+    'التاسع': '9',
+    'العاشر': '10',
+  }
+  for (const [word, num] of Object.entries(ORDINALS).sort(([a], [b]) => b.length - a.length)) {
+    t = t.replace(new RegExp(`\\s*${word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*`, 'gi'), ` ${num} `)
+  }
+
+  // 4. Translate الموسم N -> Season N, الحلقة N -> Episode N
+  t = t.replace(/\s*الموسم\s*(\d+)\s*/gi, (_, num) => ` Season ${num} `)
+  t = t.replace(/\s*الحلقة\s*(\d+)\s*/gi, (_, num) => ` Episode ${num} `)
+
+  // 5. Strip noise words (sorted by length desc)
+  const noise = ['مترجم اون لاين', 'مترجمة', 'مترجم', 'والاخيرة', 'والأخيرة', 'اون لاين', 'انمي', 'مسلسل', 'فيلم', 'series', 'anime', 'movie']
+    .sort((a, b) => b.length - a.length)
+  for (const word of noise) {
+    t = t.replace(new RegExp(`\\s*${word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*`, 'gi'), ' ')
+  }
+
+  // 6. Remove any remaining Arabic characters
+  t = t.replace(/[\u0600-\u06FF]/g, '')
+
+  // 7. Collapse and trim whitespace
+  t = t.replace(/\s+/g, ' ').trim()
+
+  return t
+}
+
 export function getCleanTitle(item) {
   const raw = item.title?.rendered || ''
   if (!raw) return 'Untitled'
-  const { name } = parseEpisode(raw)
+
+  // Decode HTML entities before parseEpisode to prevent \b\d{4}\b from
+  // stripping codepoint digits (e.g. 8217 in &#8217;)
+  const el = document.createElement('div')
+  el.innerHTML = raw
+  const decoded = el.textContent || ''
+
+  const { name } = parseEpisode(decoded)
   if (!name) return 'Untitled'
   let clean = name
     .replace(/\d{3,4}p(?:\s*(?:WEB-DL|BluRay|WEBRip|HDRip|DVD|BRRip|HDTV|WEB|CAM|TS|TC))?/gi, '')

@@ -1,7 +1,8 @@
 import { useEffect, useCallback } from 'react'
+import { stripArabic } from '../services/utils'
 
 export default function PlayerModal({ item, onClose }) {
-  const title = item.title?.rendered || 'Untitled'
+  const title = stripArabic(item.title?.rendered || 'Untitled')
 
   const playerUrl = (() => {
     // 1. Try to find iframe in content

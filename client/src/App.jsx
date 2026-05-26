@@ -20,31 +20,22 @@ export default function App() {
     const loadHero = async () => {
       setHeroLoading(true)
       try {
-        const best = await fetchBestContent('movies')
+        const [tv, anime] = await Promise.all([
+          fetchBestContent('tv', 1),
+          fetchBestContent('anime', 1),
+        ])
         if (cancelled) return
-        if (Array.isArray(best) && best.length > 0) {
-          setHeroItem(best[0])
+
+        const best = tv?.[0] || anime?.[0]
+        if (best) {
+          setHeroItem(best)
           setHeroLoading(false)
-          // BACKGROUND PRE-WARM: Start loading TV and Anime while user looks at hero
           fetchBestContent('tv', 10).catch(() => {})
           fetchBestContent('anime', 10).catch(() => {})
           return
         }
-
-        const fallback = await fetchContent('movies', '', 1)
-        if (cancelled) return
-        if (Array.isArray(fallback) && fallback.length > 0) {
-          setHeroItem(fallback[0])
-        }
-      } catch (err) {
-        if (cancelled) return
-        // Final fallback try
-        try {
-          const data = await fetchContent('movies', '', 1)
-          if (!cancelled && Array.isArray(data) && data.length > 0) {
-            setHeroItem(data[0])
-          }
-        } catch { /* ignore */ }
+      } catch {
+        // No TV/anime content available — hero stays hidden
       } finally {
         if (!cancelled) setHeroLoading(false)
       }

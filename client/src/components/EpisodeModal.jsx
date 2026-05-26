@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
-import { getFeaturedImage, extractGenres } from '../services/utils'
+import { getFeaturedImage, extractGenres, stripArabic } from '../services/utils'
 
 export default function EpisodeModal({ group, loading, onClose, onWatch }) {
   const [selectedSeason, setSelectedSeason] = useState(null)
@@ -13,7 +13,7 @@ export default function EpisodeModal({ group, loading, onClose, onWatch }) {
     }))
   }, [group])
 
-  const displayName = group?.displayName || ''
+  const displayName = stripArabic(group?.displayName || '')
   const representative = group?.representative || (group?.posts ? group.posts[0] : null)
   const genres = representative ? extractGenres(representative) : []
   const rating = group?.imdbRating || representative?.imdbRating
@@ -111,13 +111,13 @@ export default function EpisodeModal({ group, loading, onClose, onWatch }) {
                 <span className="episode-card__num">EP {ep.episode || i + 1}</span>
                 <div className="episode-card__thumb">
                   {getFeaturedImage(ep) ? (
-                    <img src={getFeaturedImage(ep)} alt={ep.title?.rendered || `Episode ${ep.episode || i + 1}`} loading="lazy" />
+                    <img src={getFeaturedImage(ep)} alt={stripArabic(ep.title?.rendered || `Episode ${ep.episode || i + 1}`)} loading="lazy" />
                   ) : (
                     <div className="episode-card__thumb-placeholder" />
                   )}
                 </div>
                 <div className="episode-card__info">
-                  <div className="episode-card__title">{ep.title?.rendered || `Episode ${ep.episode || i + 1}`}</div>
+                  <div className="episode-card__title">{stripArabic(ep.title?.rendered || `Episode ${ep.episode || i + 1}`)}</div>
                 </div>
                 <button className="episode-card__play" onClick={(e) => { e.stopPropagation(); onWatch(ep); }}>
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">

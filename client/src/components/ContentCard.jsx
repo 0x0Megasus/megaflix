@@ -1,7 +1,7 @@
-import { getFeaturedImage, detectType, extractQuality, extractGenres, getCleanTitle, parseEpisode } from '../services/utils'
+import { getFeaturedImage, detectType, extractQuality, extractGenres, getCleanTitle, parseEpisode, stripArabic } from '../services/utils'
 
 export default function ContentCard({ item, onWatch }) {
-  const title = getCleanTitle(item)
+  const title = stripArabic(getCleanTitle(item))
   const image = getFeaturedImage(item)
   const type = detectType(item)
   const quality = extractQuality(item.title?.rendered || '')

@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react'
-import { getFeaturedImage, detectType, extractQuality, groupByShow, extractGenres } from '../services/utils'
+import { getFeaturedImage, detectType, extractQuality, groupByShow, extractGenres, stripArabic } from '../services/utils'
 import { fetchShowEpisodes } from '../services/api'
 import EpisodeModal from './EpisodeModal'
 
@@ -15,7 +15,7 @@ export default function ShowCard({ group, onWatch }) {
   
   if (!post) return null
 
-  const title = group?.displayName || post.title?.rendered || 'Untitled'
+  const title = stripArabic(group?.displayName || post.title?.rendered || 'Untitled')
   const image = getFeaturedImage(post)
   const type = detectType(post)
   const quality = extractQuality(post.title?.rendered || '')

@@ -11,11 +11,13 @@ import { groupByShow, pickBiggestSeason, detectType } from '../services/utils'
 export default function CategoryPage({ filter, onWatch }) {
   const [items, setItems] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [heroItem, setHeroItem] = useState(null)
 
   useEffect(() => {
     let cancelled = false
     setLoading(true)
     setItems(null)
+    setHeroItem(null)
 
     async function load() {
       try {
@@ -30,6 +32,13 @@ export default function CategoryPage({ filter, onWatch }) {
     }
 
     load()
+
+    if (filter === 'tv' || filter === 'anime') {
+      fetchBestContent(filter, 1).then(best => {
+        if (!cancelled && best?.[0]) setHeroItem(best[0])
+      }).catch(() => {})
+    }
+
     return () => { cancelled = true }
   }, [filter])
 
@@ -47,7 +56,7 @@ export default function CategoryPage({ filter, onWatch }) {
     )
   }
 
-  const catHero = items?.[0] || null
+  const catHero = heroItem || items?.[0] || null
 
   const displayItems = isShowType 
     ? groupByShow(items).map(g => {

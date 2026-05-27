@@ -14,13 +14,45 @@ Watch movies, TV shows, and anime — free. Built with React 18 + Vite.
 
 ```
 src/
-├── services/     # API calls + content parsing
-├── hooks/        # useContent, useDebounce, etc.
-├── pages/        # HomePage, CategoryPage, DMCA, 404
-├── components/   # Navbar, cards, player, modals, etc.
-├── main.jsx      # Entry point
-├── App.jsx       # Routes + state
-└── *.css         # Styling
+├── services/
+│   ├── api.js       # Fetch + cache
+│   └── utils.js     # Parse content
+├── hooks/
+│   ├── useContent.js
+│   ├── useDebounce.js
+│   ├── useHorizontalScroll.js
+│   └── useScrollPosition.js
+├── pages/
+│   ├── HomePage.jsx
+│   ├── CategoryPage.jsx
+│   ├── DMCA.jsx
+│   └── NotFoundPage.jsx
+├── components/
+│   ├── Navbar.jsx
+│   ├── HeroBanner.jsx
+│   ├── ContentRow.jsx
+│   ├── ContentCard.jsx
+│   ├── ShowCard.jsx
+│   ├── GroupedRow.jsx
+│   ├── TopRatedRow.jsx
+│   ├── SearchResults.jsx
+│   ├── PlayerModal.jsx
+│   ├── EpisodeModal.jsx
+│   ├── ContactModal.jsx
+│   ├── Footer.jsx
+│   ├── LoadingSkeleton.jsx
+│   ├── ErrorBoundary.jsx
+│   └── SEO.jsx
+├── main.jsx       # Entry point
+├── App.jsx        # Routes + state
+├── base.css
+├── nav.css
+├── hero.css
+├── rows.css
+├── modals.css
+├── pages.css
+├── responsive.css
+└── components.css
 ```
 
 ## Pages

@@ -1,15 +1,14 @@
 # MegaFlix
 
-Watch movies, TV shows, and anime — free. Built with React-Js 18 + Vite.
+Watch movies, TV shows, and anime — free. Built with React 18 + Vite.
 
 ## What It Does
 
-- Browse movies, TV, and anime in a Netflix-style layout
+- Browse movies, TV, and anime
 - Top-rated content from IMDb lists
 - Search with type filters (All / Movies / TV / Anime)
 - TV shows and anime grouped by series with episode picker
 - Full-screen video player
-- SEO-friendly (meta tags, Open Graph, sitemap)
 
 ## How It's Organized
 

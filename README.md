@@ -1,6 +1,6 @@
-# MegaFlix Client
+# MegaFlix
 
-A free Netflix-style app to browse and watch movies, TV shows, and anime. Built with React 18 + Vite.
+Watch movies, TV shows, and anime — free. Built with React-Js 18 + Vite.
 
 ## What It Does
 

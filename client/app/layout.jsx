@@ -30,6 +30,9 @@ export const metadata = {
     capable: true,
     statusBarStyle: 'black-translucent',
   },
+  other: {
+    'mobile-web-app-capable': 'yes',
+  },
   openGraph: {
     title: 'MegaFlix - Stream Movies, TV Shows & Anime Free Online',
     description: 'Watch free movies, TV shows, and anime online in HD. No registration required.',

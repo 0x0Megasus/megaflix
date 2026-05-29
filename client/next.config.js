@@ -12,7 +12,7 @@ const nextConfig = {
     return [
       {
         source: '/api/:path*',
-        destination: `${process.env.NEXT_PUBLIC_API_PROXY_TARGET || 'http://localhost:5000'}/api/:path*`,
+        destination: `${process.env.NEXT_PUBLIC_API_PROXY_TARGET || 'https://megaflix-iota.vercel.app'}/api/:path*`,
       },
     ]
   },

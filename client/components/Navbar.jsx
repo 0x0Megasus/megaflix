@@ -1,16 +1,16 @@
 'use client'
 
-import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
+import { useScrollPosition } from '@/hooks/useScrollPosition'
 
 export default function Navbar() {
-  const [open, setOpen] = useState(false)
+  const scrolled = useScrollPosition(50)
   const pathname = usePathname()
   const router = useRouter()
 
   return (
-    <nav className="navbar">
+    <nav className={`navbar${scrolled ? ' navbar--solid' : ''}`}>
       <div className="navbar__container">
         <Link href="/" className="navbar__brand">MegaFlix</Link>
         <div className="navbar__links">

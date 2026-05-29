@@ -34,12 +34,23 @@ export default function HomePage() {
     return () => { cancelled = true }
   }, [])
 
+  if (heroLoading) {
+    return (
+      <main className="home-page">
+        <HeroBanner loading={true} />
+        <section className="home-page__rows" />
+      </main>
+    )
+  }
+
   return (
     <main className="home-page">
       <HeroBanner item={heroItem} loading={heroLoading} />
-      <TopRatedRow type="movies" label="Top Rated Movies" />
-      <TopRatedRow type="tv" label="Top Rated TV Shows" />
-      <TopRatedRow type="anime" label="Top Rated Anime" />
+      <section className="home-page__rows">
+        <TopRatedRow title="Top Movies" type="movies" limit={10} />
+        <TopRatedRow title="Top TV Shows" type="tv" limit={10} />
+        <TopRatedRow title="Top Anime" type="anime" limit={10} />
+      </section>
     </main>
   )
 }

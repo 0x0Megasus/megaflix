@@ -56,6 +56,12 @@ export default function TopRatedRow({ title, type, filter, onWatch, items: exter
             })
           }
 
+          if (filter === 'tv') {
+            console.log(`[TopRatedRow] ${finalData.length} items, IDs:`, finalData.map(i => i.id), 'imdbTitles:', finalData.map(i => i.imdbTitle))
+            if (finalData.length > 1 && finalData.every(i => i.id === finalData[0].id)) {
+              console.warn('[TopRatedRow] ALL ITEMS HAVE SAME ID!')
+            }
+          }
           setItems(finalData)
           setLoading(false)
         }

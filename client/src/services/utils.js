@@ -254,7 +254,7 @@ function stripSubtitle(name) {
   return name.replace(/\s*[:|\u2013\u2014\-–—|]\s*.*$/, '').trim()
 }
 
-function showKey(name) {
+export function showKey(name) {
   return name.toLowerCase()
     .replace(/\([^)]*\)/g, '')
     .replace(/[^\w\s]/g, '')

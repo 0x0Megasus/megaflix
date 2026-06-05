@@ -9,10 +9,10 @@ export default function ShowCard({ group, onWatch }) {
   const [loading, setLoading] = useState(false)
   const fetchRef = useRef(false)
 
-  // Defensive check: handle if group is just a post
   const posts = group?.posts || (group?.id ? [group] : [])
-  const post = group?.representative || posts[0]
-  
+  const fallbackPost = posts.find(p => p?.id) || posts[0]
+  const post = group?.representative?.id ? group.representative : fallbackPost
+
   if (!post) return null
 
   const title = stripArabic(group?.displayName || post.title?.rendered || 'Untitled')

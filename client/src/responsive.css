@@ -12,6 +12,9 @@
 }
 
 @media (max-width: 768px) {
+  .load-more-btn { padding: 10px 32px; font-size: .85rem; }
+  .bottom-search-form { flex-wrap: wrap; justify-content: center; }
+  .bottom-search-input { min-width: 200px; }
   .navbar { padding: 0 20px; height: 56px; }
   .navbar__links { gap: 10px; }
   .navbar__link { font-size: .8rem; }
@@ -78,6 +81,10 @@
   .search-results__type-btn { padding: 4px 8px; font-size: .75rem; }
   .search-card__btn { padding: 5px; font-size: .75rem; }
 
+  .load-more-btn { padding: 10px 24px; font-size: .82rem; width: 100%; }
+  .bottom-search-form { flex-direction: column; }
+  .bottom-search-input { width: 100%; }
+  .bottom-search-adv { width: 100%; text-align: center; }
   .footer__actions { gap: 16px; }
 
   .modal { padding: 0; }

@@ -9,6 +9,7 @@ export default function Footer() {
     <footer className="footer">
       <div className="footer__inner">
         <div className="footer__brand">MEGAFLIX</div>
+
         <div className="footer__actions">
           <Link to="/dmca" className="footer__action">DMCA</Link>
           <button className="footer__action" onClick={() => setContactOpen(true)}>Contact Us</button>

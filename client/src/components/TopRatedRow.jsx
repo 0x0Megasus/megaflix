@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { fetchBestContent, fetchContent } from '../services/api'
-import { getCleanTitle, getCategoryIds, detectType } from '../services/utils'
+import { getCleanTitle, getCategoryIds, detectType, groupByShow, pickBiggestSeason } from '../services/utils'
 import { useHorizontalScroll } from '../hooks/useHorizontalScroll'
 import ContentCard from './ContentCard'
 import ShowCard from './ShowCard'
@@ -56,16 +56,18 @@ export default function TopRatedRow({ title, type, filter, onWatch, items: exter
             })
           }
 
-          if ((filter === 'tv' || filter === 'anime') && finalData.some(i => !i.imdbTitle)) {
-            const seen = new Map()
-            finalData = finalData.filter(item => {
-              const key = item.imdbTitle || getCleanTitle(item).toLowerCase().trim()
-              if (!key || seen.has(key)) return false
-              seen.set(key, item)
-              return true
-            })
+          // If IMDB data is missing for TV/anime, group fallback episodes by show
+          const hasImdb = finalData.some(i => i.imdbTitle)
+          if (!hasImdb && (filter === 'tv' || filter === 'anime') && finalData.length > 0) {
+            const groups = groupByShow(finalData)
+            finalData = groups.map(g => {
+              const season = pickBiggestSeason(g)
+              const rep = season.representative || g.posts?.[0]
+              if (!rep) return null
+              return { ...rep, seasonNum: season.seasonNum || 1, displayName: g.displayName }
+            }).filter(Boolean)
           }
-          if (filter === 'tv') console.log(`[TopRatedRow] ${finalData.length} unique shows`)
+
           setItems(finalData)
           setLoading(false)
         }

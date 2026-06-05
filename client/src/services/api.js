@@ -189,19 +189,25 @@ export async function fetchContent(filter, search = '', page = 1, categories = '
     fetchPosts({ filter, search, page, categories, perPage: 50 }),
     search ? Promise.resolve([]) : fetchPosts({ filter, search, page: page + 1, categories, perPage: 50 }),
   ]);
-  const items = [...(Array.isArray(page1) ? page1 : []), ...(Array.isArray(page2) ? page2 : [])];
+  const rawItems = [...(Array.isArray(page1) ? page1 : []), ...(Array.isArray(page2) ? page2 : [])];
+  const seen = new Set();
+  const items = rawItems.filter(item => {
+    if (seen.has(item.id)) return false;
+    seen.add(item.id);
+    return true;
+  });
 
   if (!search) return items;
 
   const matched = items.filter(item => matchTitle(item, search));
   if (matched.length >= 5) return matched;
 
-  const seen = new Set(items.map(i => i.id));
+  const seenAll = new Set(items.map(i => i.id));
   const all = await fetchPosts({ filter, page: 1, categories, perPage: 100 });
   if (Array.isArray(all)) {
     all.forEach(item => {
-      if (!seen.has(item.id) && matchTitle(item, search)) {
-        seen.add(item.id);
+      if (!seenAll.has(item.id) && matchTitle(item, search)) {
+        seenAll.add(item.id);
         items.push(item);
       }
     });

@@ -23,7 +23,7 @@ export default function HeroBanner({ item, onWatch, loading }) {
   if (!item) return null
 
   const title = item.imdbTitle || getCleanTitle(item)
-  const image = getFeaturedImage(item) || FALLBACK_IMG
+  const image = getFeaturedImage(item, 'full') || FALLBACK_IMG
   const type = detectType(item)
   const isShowType = type === 'TV Show' || type === 'Anime'
 
@@ -58,7 +58,7 @@ export default function HeroBanner({ item, onWatch, loading }) {
   return (
     <section className="hero">
       <div className="hero__bg">
-        <img className="hero__bg-img" src={image} alt={title} fetchpriority="high" />
+        <img className="hero__bg-img" src={image} alt={title} fetchpriority="high" decoding="sync" />
         <div className="hero__bg-fallback" style={{ backgroundImage: `url(${image})` }} />
       </div>
       <div className="hero__gradient" />

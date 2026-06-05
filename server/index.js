@@ -249,7 +249,13 @@ app.use('/api/wp/v2/posts', async (req, res) => {
 
     if (!response.ok) return res.status(response.status).json({ error: `API error ${response.status}` });
     const data = await response.json();
-    res.json(data);
+    const seen = new Set();
+    const deduped = Array.isArray(data) ? data.filter(p => {
+      if (seen.has(p.id)) return false;
+      seen.add(p.id);
+      return true;
+    }) : data;
+    res.json(deduped);
   } catch (err) {
     res.status(500).json({ error: 'Proxy error', message: err.message });
   }

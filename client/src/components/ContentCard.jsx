@@ -2,7 +2,7 @@ import { getFeaturedImage, detectType, extractQuality, extractGenres, getCleanTi
 
 export default function ContentCard({ item, onWatch }) {
   const title = stripArabic(getCleanTitle(item))
-  const image = getFeaturedImage(item)
+  const image = getFeaturedImage(item, 'medium')
   const type = detectType(item)
   const quality = extractQuality(item.title?.rendered || '')
   const genres = extractGenres(item)
@@ -12,7 +12,7 @@ export default function ContentCard({ item, onWatch }) {
     <article className="card" onClick={() => onWatch(item)}>
       <div className="card__img-wrap">
         {image ? (
-          <img className="card__img" src={image} alt={title} loading="lazy" />
+          <img className="card__img" src={image} alt={title} loading="lazy" decoding="async" />
         ) : (
           <div className="card__placeholder" />
         )}

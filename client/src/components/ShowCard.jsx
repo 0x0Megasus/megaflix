@@ -16,7 +16,7 @@ export default function ShowCard({ group, onWatch }) {
   if (!post) return null
 
   const title = stripArabic(group?.displayName || post.title?.rendered || 'Untitled')
-  const image = getFeaturedImage(post)
+  const image = getFeaturedImage(post, 'medium')
   const type = detectType(post)
   const quality = extractQuality(post.title?.rendered || '')
   const genres = extractGenres(post)
@@ -90,7 +90,7 @@ export default function ShowCard({ group, onWatch }) {
       <article className="card show-card" onClick={handleClick}>
         <div className="card__img-wrap">
           {image ? (
-            <img className="card__img" src={image} alt={title} loading="lazy" />
+            <img className="card__img" src={image} alt={title} loading="lazy" decoding="async" />
           ) : (
             <div className="card__placeholder" />
           )}

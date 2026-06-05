@@ -1,13 +1,19 @@
-export function getFeaturedImage(item) {
+export function getFeaturedImage(item, preferred = 'full') {
   const media = item._embedded?.['wp:featuredmedia'];
   if (!media?.length) return '';
+
   const sizes = media[0]?.media_details?.sizes;
-  return sizes?.full?.source_url
-    || sizes?.large?.source_url
-    || sizes?.medium_large?.source_url
-    || sizes?.medium?.source_url
-    || media[0]?.source_url
-    || '';
+  const SIZE_ORDER = preferred === 'full'
+    ? ['full', 'large', 'medium_large', 'medium']
+    : ['medium_large', 'medium', 'large', 'full'];
+  const ORDER = preferred === 'medium'
+    ? ['medium', 'medium_large', 'thumbnail', 'large']
+    : SIZE_ORDER;
+
+  for (const size of ORDER) {
+    if (sizes?.[size]?.source_url) return sizes[size].source_url;
+  }
+  return media[0]?.source_url || '';
 }
 
 export function getCategoryIds(item) {
@@ -237,9 +243,11 @@ export function getCleanTitle(item) {
     .replace(/\d{3,4}p(?:\s*(?:WEB-DL|BluRay|WEBRip|HDRip|DVD|BRRip|HDTV|WEB|CAM|TS|TC))?/gi, '')
     .replace(/(?:WEB-DL|BluRay|WEBRip|HDRip|DVD|BRRip|HDTV|WEB|CAM|TS|TC)\s*\d*p?/gi, '')
     .replace(/\b\d{4}\b/g, '')
+    .replace(/[\u0600-\u06FF]/g, '')
+    .replace(/\s*\(\)\s*/g, '')
     .replace(/\s+/g, ' ')
     .trim()
-  return clean || name
+  return clean || name.replace(/[\u0600-\u06FF]/g, '').trim() || 'Untitled'
 }
 
 function stripSubtitle(name) {

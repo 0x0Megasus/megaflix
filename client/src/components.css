@@ -90,12 +90,22 @@
   height: 100%;
 }
 
+.hero__bg {
+  background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #0a0a1a 100%);
+}
+
 .hero__bg-img {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
+  animation: heroImageIn .4s ease;
+}
+
+@keyframes heroImageIn {
+  from { opacity: 0; transform: scale(1.05); }
+  to { opacity: 1; transform: scale(1); }
 }
 
 .hero__bg-fallback {
@@ -264,7 +274,15 @@
   aspect-ratio: 2 / 3;
   overflow: hidden;
   border-radius: var(--radius);
-  background: var(--bg-card);
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #1a1a2e 100%);
+}
+
+.card__img-wrap::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,.02) 0%, rgba(255,255,255,.04) 50%, transparent 100%);
+  z-index: 0;
 }
 
 .card__img {
@@ -272,11 +290,30 @@
   height: 100%;
   object-fit: cover;
   display: block;
-  transition: transform .4s ease;
+  position: relative;
+  z-index: 1;
+  transition: transform .4s ease, opacity .3s ease;
+  animation: cardImageIn .3s ease;
+}
+
+.card__img-wrap .card__img {
+  z-index: 1;
 }
 
 .card:hover .card__img {
   transform: scale(1.05);
+}
+
+.card__placeholder {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #1a1a2e 100%);
+}
+
+@keyframes cardImageIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .card__overlay {

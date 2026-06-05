@@ -110,8 +110,8 @@ export default function EpisodeModal({ group, loading, onClose, onWatch }) {
               <div key={ep.id || i} className="episode-card" onClick={() => onWatch(ep)}>
                 <span className="episode-card__num">EP {ep.episode || i + 1}</span>
                 <div className="episode-card__thumb">
-                  {getFeaturedImage(ep) ? (
-                    <img src={getFeaturedImage(ep)} alt={stripArabic(ep.title?.rendered || `Episode ${ep.episode || i + 1}`)} loading="lazy" />
+                  {getFeaturedImage(ep, 'medium') ? (
+                    <img src={getFeaturedImage(ep, 'medium')} alt={stripArabic(ep.title?.rendered || `Episode ${ep.episode || i + 1}`)} loading="lazy" decoding="async" />
                   ) : (
                     <div className="episode-card__thumb-placeholder" />
                   )}

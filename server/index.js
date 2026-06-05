@@ -175,7 +175,7 @@ app.get('/api/best-content/:type', async (req, res) => {
     for (let i = 0; i < list.length && matched.length < limit; i += 10) {
       const batch = list.slice(i, i + 10);
       const results = await Promise.allSettled(batch.map(async (item) => {
-        const title = item["Movie Name"] || item["Show Name"];
+        const title = item.name || item["Movie Name"] || item["Show Name"];
         const rating = parseFloat(item["IMDb Rating"]);
         if (!title || isNaN(rating)) return null;
 

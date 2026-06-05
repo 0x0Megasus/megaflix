@@ -112,13 +112,6 @@ export default function CategoryPage({ filter, onWatch }) {
       })
     : items || []
 
-  if (filter === 'tv' && displayItems.length > 0) {
-    const reps = displayItems.map(g => g.representative?.id)
-    console.log(`[CategoryPage] ${displayItems.length} displayItems, rep IDs:`, reps, 'displayNames:', displayItems.map(g => g.displayName))
-    if (displayItems.length > 1 && reps.every(r => r === reps[0])) {
-      console.warn('[CategoryPage] ALL REPRESENTATIVES HAVE SAME ID!')
-    }
-  }
 
   const visibleItems = displayItems.slice(0, visibleCount)
   const hasMore = visibleCount < displayItems.length

@@ -56,12 +56,16 @@ export default function TopRatedRow({ title, type, filter, onWatch, items: exter
             })
           }
 
-          if (filter === 'tv') {
-            console.log(`[TopRatedRow] ${finalData.length} items, IDs:`, finalData.map(i => i.id), 'imdbTitles:', finalData.map(i => i.imdbTitle))
-            if (finalData.length > 1 && finalData.every(i => i.id === finalData[0].id)) {
-              console.warn('[TopRatedRow] ALL ITEMS HAVE SAME ID!')
-            }
+          if ((filter === 'tv' || filter === 'anime') && finalData.some(i => !i.imdbTitle)) {
+            const seen = new Map()
+            finalData = finalData.filter(item => {
+              const key = item.imdbTitle || getCleanTitle(item).toLowerCase().trim()
+              if (!key || seen.has(key)) return false
+              seen.set(key, item)
+              return true
+            })
           }
+          if (filter === 'tv') console.log(`[TopRatedRow] ${finalData.length} unique shows`)
           setItems(finalData)
           setLoading(false)
         }
